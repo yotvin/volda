@@ -1,292 +1,354 @@
 <!DOCTYPE html>
-<html>
+<html lang="fr">
 <head>
 <meta charset="UTF-8">
-<title>ORLEN</title>
-<style>
-body { margin:0; overflow:hidden; background:black; font-family:Arial; }
+<title>Runner Corrompu</title>
 
-/* MENU */
-#menu {
+<style>
+
+body{
+margin:0;
+overflow:hidden;
+background:linear-gradient(#87CEEB,#dff4ff);
+font-family:Arial;
+}
+
+canvas{
+display:block;
+margin:auto;
+}
+
+#ui{
 position:absolute;
-width:100%;
-height:100%;
-background:radial-gradient(circle, #200000, #000);
+top:20px;
+left:20px;
+font-size:22px;
+}
+
+.glitch{
+animation:glitch 0.15s infinite;
+}
+
+@keyframes glitch{
+0%{transform:translate(2px,0)}
+50%{transform:translate(-2px,2px)}
+100%{transform:translate(0,-2px)}
+}
+
+.windowNotif{
+position:absolute;
+width:260px;
+background:#f0f0f0;
+border:2px solid #555;
+box-shadow:4px 4px 10px rgba(0,0,0,0.5);
+font-family:Arial;
+}
+
+.windowBar{
+background:#2d89ef;
+color:white;
+padding:5px;
+font-size:14px;
+}
+
+.windowBody{
+padding:10px;
+color:black;
+font-size:14px;
+}
+
+@keyframes scroll{
+0%{transform:translateX(100vw)}
+100%{transform:translateX(-100%)}
+}
+
+</style>
+</head>
+
+<body>
+
+<div id="ui">Score : <span id="score">0</span></div>
+
+<canvas id="game" width="900" height="400"></canvas>
+
+<script>
+
+const canvas = document.getElementById("game")
+const ctx = canvas.getContext("2d")
+
+let score = 0
+let gameOver = false
+let corruption = false
+
+let player={
+x:100,
+y:300,
+vy:0,
+jump:false
+}
+
+let enemies=[]
+let clouds=[]
+
+for(let i=0;i<5;i++){
+clouds.push({
+x:Math.random()*900,
+y:Math.random()*150,
+size:40+Math.random()*40
+})
+}
+
+function spawnEnemy(){
+enemies.push({
+x:900,
+y:320,
+w:30,
+h:40
+})
+}
+
+setInterval(spawnEnemy,1600)
+
+document.addEventListener("keydown",e=>{
+
+if(e.code==="Space" && !player.jump){
+
+player.vy=-12
+player.jump=true
+playJump()
+
+}
+
+})
+
+function update(){
+
+if(gameOver)return
+
+score++
+document.getElementById("score").innerText=score
+
+player.vy+=0.6
+player.y+=player.vy
+
+if(player.y>=300){
+player.y=300
+player.jump=false
+}
+
+clouds.forEach(c=>{
+c.x-=0.5
+if(c.x<-100)c.x=900
+})
+
+enemies.forEach(e=>{
+
+e.x-=6
+
+if(
+player.x<e.x+e.w &&
+player.x+30>e.x &&
+player.y<e.y+e.h &&
+player.y+30>e.y
+){
+die()
+}
+
+})
+
+enemies=enemies.filter(e=>e.x>-50)
+
+}
+
+function draw(){
+
+ctx.clearRect(0,0,900,400)
+
+drawClouds()
+
+ctx.fillStyle="#2ecc71"
+ctx.fillRect(player.x,player.y,30,30)
+
+ctx.fillStyle="#e74c3c"
+
+enemies.forEach(e=>{
+ctx.fillRect(e.x,e.y,e.w,e.h)
+})
+
+ctx.fillStyle="#444"
+ctx.fillRect(0,350,900,50)
+
+}
+
+function drawClouds(){
+
+ctx.fillStyle="white"
+
+clouds.forEach(c=>{
+ctx.beginPath()
+ctx.arc(c.x,c.y,c.size,0,Math.PI*2)
+ctx.fill()
+})
+
+}
+
+function die(){
+gameOver=true
+setTimeout(whiteGameOver,1000)
+}
+
+function whiteGameOver(){
+
+document.body.innerHTML=`
+
+<div style="
+background:white;
+width:100vw;
+height:100vh;
 display:flex;
 flex-direction:column;
 justify-content:center;
 align-items:center;
-color:white;
-z-index:10;
-}
+">
 
-#title {
-font-size:80px;
-letter-spacing:12px;
-text-shadow:0 0 25px red;
-}
+<h1 style="font-size:60px;">GAME OVER</h1>
 
-#play {
-margin-top:40px;
-padding:20px 60px;
-font-size:22px;
-cursor:pointer;
-background:red;
-border:none;
-color:white;
-}
+<button onclick="restartGame()" 
+style="font-size:20px;padding:15px 30px;">
+Recommencer
+</button>
 
-#credits {
+<div style="
 position:absolute;
-right:30px;
-bottom:30px;
-padding:10px 20px;
-background:#111;
-border:1px solid red;
-color:white;
-cursor:pointer;
-}
-
-/* HUD */
-#hud {
-position:absolute;
-top:20px;
-left:20px;
-color:white;
-z-index:5;
+bottom:20px;
+white-space:nowrap;
 font-size:18px;
-text-shadow:0 0 5px black;
-display:none;
-}
-
-/* CROSSHAIR */
-#crosshair {
-position:absolute;
-top:50%;
-left:50%;
-width:20px;
-height:20px;
-transform:translate(-50%,-50%);
-pointer-events:none;
-z-index:5;
-}
-#crosshair:before, #crosshair:after {
-content:"";
-position:absolute;
-background:yellow;
-}
-#crosshair:before {
-width:20px; height:2px; top:9px; left:0;
-}
-#crosshair:after {
-width:2px; height:20px; top:0; left:9px;
-}
-</style>
-</head>
-<body>
-
-<div id="menu">
-<div id="title">ORLEN    version pré-alpha 0.3</div>
-<button id="play" onclick="startGame()">JOUER</button>
-<button id="credits">CRÉDITS<br>Yotvin</button>
+animation:scroll 15s linear infinite;">
+MESSAGE SYSTEME
 </div>
 
-<div id="hud">
-❤️ Vie: <span id="hp">100</span><br>
-🔫 Balles: <span id="ammo">30</span>
 </div>
 
-<div id="crosshair"></div>
+`
 
-<script src="https://cdn.jsdelivr.net/npm/three@0.150.1/build/three.min.js"></script>
-
-<script>
-let scene, camera, renderer;
-let player, velocityY = 0;
-let enemies = [];
-let bullets = [];
-
-let hp = 100;
-let ammo = 30;
-let isDead = false;
-
-const GRAVITY = -0.02;
-const FLOOR_Y = 2;
-
-let move = {f:false,b:false,l:false,r:false};
-let yaw=0, pitch=0;
-
-function startGame(){
-menu.style.display="none";
-hud.style.display="block";
-init();
-animate();
 }
 
-function init(){
-scene = new THREE.Scene();
-scene.background = new THREE.Color(0x222222);
-
-camera = new THREE.PerspectiveCamera(75, innerWidth/innerHeight, 0.1, 1000);
-
-renderer = new THREE.WebGLRenderer({antialias:true});
-renderer.setSize(innerWidth, innerHeight);
-document.body.appendChild(renderer.domElement);
-
-// PLAYER BODY (invisible)
-player = new THREE.Object3D();
-player.position.y = FLOOR_Y;
-scene.add(player);
-player.add(camera);
-
-// LIGHTS
-scene.add(new THREE.AmbientLight(0xffffff,0.4));
-let sun = new THREE.DirectionalLight(0xffffff,1);
-sun.position.set(50,100,50);
-scene.add(sun);
-
-// FLOOR
-let floor = new THREE.Mesh(
-new THREE.PlaneGeometry(1000,1000),
-new THREE.MeshStandardMaterial({color:0x111111})
-);
-floor.rotation.x = -Math.PI/2;
-scene.add(floor);
-
-// ENEMIES
-for(let i=0;i<5;i++) spawnEnemy();
-
-// INPUT
-document.body.addEventListener("click", ()=>document.body.requestPointerLock());
-
-document.addEventListener("mousemove", e=>{
-if(document.pointerLockElement){
-yaw -= e.movementX*0.002;
-pitch -= e.movementY*0.002;
-pitch = Math.max(-1.4, Math.min(1.4,pitch));
-camera.rotation.set(pitch,yaw,0);
-}
-});
-
-document.addEventListener("keydown",e=>{
-if(e.key=="z") move.f=true;
-if(e.key=="s") move.b=true;
-if(e.key=="q") move.l=true;
-if(e.key=="d") move.r=true;
-});
-
-document.addEventListener("keyup",e=>{
-if(e.key=="z") move.f=false;
-if(e.key=="s") move.b=false;
-if(e.key=="q") move.l=false;
-if(e.key=="d") move.r=false;
-});
-
-document.addEventListener("mousedown",shoot);
+function restartGame(){
+location.href = location.href
 }
 
-function spawnEnemy(){
-let e = new THREE.Group();
-e.userData.hp = 10;
+/* CORRUPTION APRES 1 MINUTE */
 
-// HUMANOID (très grand)
-let torso = new THREE.Mesh(
-new THREE.BoxGeometry(3,8,2),
-new THREE.MeshStandardMaterial({color:0x000000})
-);
-e.add(torso);
+setTimeout(startCorruption,60000)
 
-let head = new THREE.Mesh(
-new THREE.BoxGeometry(2,2,2),
-new THREE.MeshStandardMaterial({color:0x000000})
-);
-head.position.y = 5;
-e.add(head);
+function startCorruption(){
 
-// YEUX
-for(let i=0;i<3;i++){
-let eye = new THREE.Mesh(
-new THREE.SphereGeometry(0.3),
-new THREE.MeshBasicMaterial({color:0xff0000})
-);
-eye.position.set(-0.5+i*0.5,5,1.1);
-e.add(eye);
+corruption=true
+
+document.body.classList.add("glitch")
+
+setInterval(playGlitchSound,120)
+
+setInterval(spawnWindow,500)
+
 }
 
-e.position.set(Math.random()*200-100,4,Math.random()*200-100);
-scene.add(e);
-enemies.push(e);
+/* FENETRES */
+
+function spawnWindow(){
+
+let win=document.createElement("div")
+win.className="windowNotif"
+
+win.style.left=Math.random()*700+"px"
+win.style.top=Math.random()*300+"px"
+
+win.innerHTML=`
+<div class="windowBar">System</div>
+<div class="windowBody">
+Message système
+</div>
+`
+
+document.body.appendChild(win)
+
 }
 
-function shoot(){
-if(ammo<=0 || isDead) return;
-ammo--;
-ammoSpan.innerText=ammo;
+/* AUDIO */
 
-// BULLET
-let bullet = new THREE.Mesh(
-new THREE.SphereGeometry(0.15),
-new THREE.MeshBasicMaterial({color:0xffff00})
-);
-bullet.position.copy(camera.getWorldPosition(new THREE.Vector3()));
-bullet.userData.dir = new THREE.Vector3();
-camera.getWorldDirection(bullet.userData.dir);
-scene.add(bullet);
-bullets.push(bullet);
+let audioCtx=new AudioContext()
+
+function playTone(freq,time){
+
+let osc=audioCtx.createOscillator()
+let gain=audioCtx.createGain()
+
+osc.frequency.value=freq
+osc.type="square"
+
+osc.connect(gain)
+gain.connect(audioCtx.destination)
+
+gain.gain.setValueAtTime(0.1,audioCtx.currentTime)
+gain.gain.exponentialRampToValueAtTime(
+0.001,
+audioCtx.currentTime+time
+)
+
+osc.start()
+osc.stop(audioCtx.currentTime+time)
+
 }
 
-function animate(){
-requestAnimationFrame(animate);
-if(isDead) return;
+function funnyMusic(){
 
-// GRAVITY
-velocityY += GRAVITY;
-player.position.y += velocityY;
-if(player.position.y < FLOOR_Y){
-player.position.y = FLOOR_Y;
-velocityY = 0;
+let notes=[262,330,392,523]
+
+setInterval(()=>{
+
+if(!corruption){
+
+let n=notes[Math.floor(Math.random()*notes.length)]
+playTone(n,0.2)
+
 }
 
-// MOVE
-let speed=0.6;
-if(move.f) player.translateZ(-speed);
-if(move.b) player.translateZ(speed);
-if(move.l) player.translateX(-speed);
-if(move.r) player.translateX(speed);
+},400)
 
-// BULLETS
-bullets.forEach((b,i)=>{
-b.position.add(b.userData.dir.clone().multiplyScalar(2));
-enemies.forEach((e)=>{
-if(b.position.distanceTo(e.position)<2){
-e.userData.hp--;
-scene.remove(b);
-bullets.splice(i,1);
-if(e.userData.hp<=0){
-scene.remove(e);
-enemies.splice(enemies.indexOf(e),1);
-spawnEnemy();
 }
-}
-});
-});
 
-// ENEMIES
-enemies.forEach(e=>{
-e.lookAt(player.position);
-e.position.x += (player.position.x-e.position.x)*0.01;
-e.position.z += (player.position.z-e.position.z)*0.01;
-
-if(e.position.distanceTo(player.position)<3){
-hp -= 0.3;
-hp = Math.max(0,hp);
-hpSpan.innerText=Math.floor(hp);
-if(hp<=0) isDead=true;
+function playJump(){
+playTone(600,0.1)
 }
-});
 
-renderer.render(scene,camera);
+function playGlitchSound(){
+
+let osc=audioCtx.createOscillator()
+let gain=audioCtx.createGain()
+
+osc.type="sawtooth"
+osc.frequency.value=50+Math.random()*2000
+
+osc.connect(gain)
+gain.connect(audioCtx.destination)
+
+gain.gain.value=0.2
+
+osc.start()
+osc.stop(audioCtx.currentTime+0.05)
+
 }
+
+funnyMusic()
+
+function loop(){
+update()
+draw()
+requestAnimationFrame(loop)
+}
+
+loop()
+
 </script>
 
 </body>
