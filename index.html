@@ -3,26 +3,40 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ORLEN ᵐᵘˢⁱᶜ ᵇᵃˢᵉ</title>
+<title>ORLEN music base</title>
 
 <style>
+
+:root{
+--bg1:#0f2027;
+--bg2:#203a43;
+--bg3:#2c5364;
+--accent:#00e0ff;
+}
+
 body{
 margin:0;
-font-family:Arial, Helvetica, sans-serif;
-background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+font-family:"Segoe UI",Arial,Helvetica,sans-serif;
+background:linear-gradient(135deg,var(--bg1),var(--bg2),var(--bg3));
 color:white;
 }
 
 header{
 text-align:center;
-padding:25px;
-font-size:30px;
+padding:30px;
+font-size:34px;
 font-weight:bold;
-letter-spacing:1px;
+letter-spacing:2px;
+}
+
+.subtitle{
+text-align:center;
+opacity:.8;
+margin-bottom:20px;
 }
 
 .studio{
-max-width:1200px;
+max-width:1300px;
 margin:auto;
 padding:30px;
 display:grid;
@@ -33,71 +47,103 @@ gap:30px;
 .panel{
 background:rgba(255,255,255,0.08);
 padding:25px;
-border-radius:14px;
-backdrop-filter:blur(8px);
+border-radius:16px;
+backdrop-filter:blur(10px);
+box-shadow:0 10px 30px rgba(0,0,0,0.3);
 }
 
-.panel h2{margin-top:0;}
+.panel h2{
+margin-top:0;
+}
 
 /* PIANO */
 
 .piano{
 display:flex;
 height:200px;
+margin-top:15px;
 user-select:none;
 }
 
 .key{
-width:60px;
-height:200px;
+flex:1;
 background:white;
-border:1px solid #000;
-box-sizing:border-box;
+border:1px solid #111;
 cursor:pointer;
+position:relative;
 }
 
-.key:active{background:#ddd;}
+.key:active{
+background:#ddd;
+}
+
+.key span{
+position:absolute;
+bottom:5px;
+left:50%;
+transform:translateX(-50%);
+font-size:12px;
+color:black;
+}
 
 /* DRUM PADS */
 
 .pads{
 display:grid;
 grid-template-columns:repeat(4,1fr);
-gap:15px;
-margin-top:15px;
+gap:12px;
+margin-top:10px;
 }
 
 .pad{
-background:#00e0ff;
-padding:20px;
-text-align:center;
+background:var(--accent);
+padding:18px;
 border-radius:10px;
+text-align:center;
 font-weight:bold;
 cursor:pointer;
 }
 
-.pad:active{transform:scale(0.95);}
+.pad:active{transform:scale(.95);} 
 
-.controls{margin-top:15px;}
+/* BUTTONS */
 
 button,select{
-padding:10px 18px;
+padding:10px 16px;
 border:none;
 border-radius:8px;
-background:#00e0ff;
+background:var(--accent);
 font-weight:bold;
 cursor:pointer;
-margin-right:10px;
+margin-top:5px;
 }
 
-button:hover{background:#00bcd4;}
+textarea{
+width:100%;
+border-radius:10px;
+border:none;
+padding:10px;
+margin-top:10px;
+}
 
-.status{margin-top:10px;font-size:14px;opacity:0.8;}
+.status{margin-top:10px;font-size:14px;opacity:.8}
 
 footer{
 text-align:center;
 padding:30px;
-opacity:0.7;
+opacity:.7;
+}
+
+.update{
+font-size:14px;
+opacity:.85;
+line-height:1.6;
+}
+
+.surprise{
+margin-top:15px;
+font-weight:bold;
+color:#ffd700;
 }
 
 </style>
@@ -106,12 +152,13 @@ opacity:0.7;
 <body>
 
 <header>🎵 ORLEN music base</header>
+<div class="subtitle">Studio musical web • Piano • Batterie • Robot vocal</div>
 
 <div class="studio">
 
-<!-- PIANO / INSTRUMENT -->
+<!-- INSTRUMENT -->
 <div class="panel">
-<h2>Instrument</h2>
+<h2>🎹 Instrument</h2>
 
 <select id="instrumentSelect">
 <option value="piano">Piano</option>
@@ -119,23 +166,24 @@ opacity:0.7;
 <option value="synth">Synthé</option>
 </select>
 
-<div class="piano">
-<div class="key" data-note="261.63"></div>
-<div class="key" data-note="293.66"></div>
-<div class="key" data-note="329.63"></div>
-<div class="key" data-note="349.23"></div>
-<div class="key" data-note="392.00"></div>
-<div class="key" data-note="440.00"></div>
-<div class="key" data-note="493.88"></div>
+<div class="piano" id="piano">
+<div class="key" data-note="261.63"><span>A</span></div>
+<div class="key" data-note="293.66"><span>S</span></div>
+<div class="key" data-note="329.63"><span>D</span></div>
+<div class="key" data-note="349.23"><span>F</span></div>
+<div class="key" data-note="392"><span>G</span></div>
+<div class="key" data-note="440"><span>H</span></div>
+<div class="key" data-note="493.88"><span>J</span></div>
+<div class="key" data-note="523"><span>K</span></div>
 </div>
 
-<p>Touches: Do Re Mi Fa Sol La Si</p>
+<p>Jouer avec la souris ou le clavier : A S D F G H J K</p>
 
 </div>
 
 <!-- DRUMS -->
 <div class="panel">
-<h2>Batterie</h2>
+<h2>🥁 Batterie</h2>
 
 <div class="pads">
 <div class="pad" data-drum="kick">Kick</div>
@@ -145,23 +193,68 @@ opacity:0.7;
 <div class="pad" data-drum="clap">Clap</div>
 <div class="pad" data-drum="snare2">Snare 2</div>
 <div class="pad" data-drum="hihat2">HiHat 2</div>
-<div class="pad" data-drum="noise">FX</div>
+<div class="pad" data-drum="fx">FX</div>
 </div>
+
+</div>
+
+<!-- ROBOT VOICE -->
+<div class="panel">
+<h2>🤖 Robot vocal</h2>
+
+<select id="voiceSelect"></select>
+
+<textarea id="robotText" placeholder="Écris un texte que le robot va lire..."></textarea>
+
+<button onclick="speakText()">Lire le texte</button>
+
+<button onclick="startMicRecord()">Enregistrer voix micro</button>
+<button onclick="stopMicRecord()">Stop micro</button>
+
+<a id="micDownload"></a>
 
 </div>
 
 <!-- RECORDER -->
 <div class="panel">
-<h2>Enregistrement</h2>
+<h2>🎙 Enregistrement musique</h2>
 
-<div class="controls">
 <button onclick="startRecording()">Start</button>
 <button onclick="stopRecording()">Stop</button>
-</div>
 
 <div class="status" id="recStatus">Statut : prêt</div>
 
-<a id="downloadLink" style="display:block;margin-top:15px"></a>
+<a id="downloadLink"></a>
+
+</div>
+
+<!-- IDEAS -->
+<div class="panel">
+<h2>🎼 Idées de musiques</h2>
+
+<ul>
+<li>LoFi chill</li>
+<li>Trap beat</li>
+<li>Ambient space</li>
+<li>Retro synthwave</li>
+</ul>
+
+</div>
+
+<!-- UPDATES -->
+<div class="panel">
+<h2>📜 Notes de mise à jour</h2>
+
+<div class="update">
+Version 1.0
+<br>• piano jouable
+<br>• batterie
+<br>• robot vocal
+<br>• enregistrement audio
+<br>• clavier PC supporté
+</div>
+
+<div class="surprise">✨ Surprise : essaye d'appuyer très vite sur toutes les touches du piano !</div>
 
 </div>
 
@@ -171,23 +264,129 @@ opacity:0.7;
 
 <script>
 
-const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+const audioCtx=new(window.AudioContext||window.webkitAudioContext)();
+const mediaDest=audioCtx.createMediaStreamDestination();
+const recorder=new MediaRecorder(mediaDest.stream);
 
-const mediaDest = audioCtx.createMediaStreamDestination();
-const recorder = new MediaRecorder(mediaDest.stream);
-
-let chunks=[];
 let instrument="piano";
+let chunks=[];
 
 const statusText=document.getElementById("recStatus");
 
-/* instrument selection */
+/* instrument */
 
-document.getElementById("instrumentSelect").onchange=e=>{
-instrument=e.target.value;
+document.getElementById("instrumentSelect").onchange=e=>instrument=e.target.value;
+
+/* connect */
+
+function connect(node){
+node.connect(audioCtx.destination);
+node.connect(mediaDest);
 }
 
-/* recorder */
+/* instruments */
+
+function play(freq){
+
+let osc=audioCtx.createOscillator();
+let gain=audioCtx.createGain();
+
+if(instrument==="piano") osc.type="sine";
+if(instrument==="synth") osc.type="sawtooth";
+if(instrument==="guitar") osc.type="triangle";
+
+osc.frequency.value=freq;
+
+gain.gain.value=.35;
+
+osc.connect(gain);
+connect(gain);
+
+osc.start();
+osc.stop(audioCtx.currentTime+.7);
+
+}
+
+/* piano mouse */
+
+document.querySelectorAll(".key").forEach(k=>{
+
+k.onclick=()=>play(parseFloat(k.dataset.note));
+
+});
+
+/* keyboard play */
+
+const keyMap={
+a:261.63,
+s:293.66,
+d:329.63,
+f:349.23,
+g:392,
+h:440,
+j:493.88,
+k:523
+};
+
+document.addEventListener("keydown",e=>{
+
+let note=keyMap[e.key];
+if(note) play(note);
+
+});
+
+/* drums */
+
+function noise(d,f){
+
+let size=audioCtx.sampleRate*d;
+let buffer=audioCtx.createBuffer(1,size,audioCtx.sampleRate);
+let data=buffer.getChannelData(0);
+
+for(let i=0;i<size;i++) data[i]=Math.random()*2-1;
+
+let src=audioCtx.createBufferSource();
+src.buffer=buffer;
+
+let filter=audioCtx.createBiquadFilter();
+filter.frequency.value=f;
+
+src.connect(filter);
+connect(filter);
+
+src.start();
+
+}
+
+function kick(){noise(.3,120)}
+function kick2(){noise(.3,80)}
+function snare(){noise(.2,1200)}
+function snare2(){noise(.2,800)}
+function hihat(){noise(.05,9000)}
+function hihat2(){noise(.08,7000)}
+function clap(){noise(.15,3000)}
+
+
+document.querySelectorAll(".pad").forEach(p=>{
+
+p.onclick=()=>{
+
+let d=p.dataset.drum;
+
+if(d==="kick")kick();
+if(d==="kick2")kick2();
+if(d==="snare")snare();
+if(d==="snare2")snare2();
+if(d==="hihat")hihat();
+if(d==="hihat2")hihat2();
+if(d==="clap")clap();
+if(d==="fx")noise(.5,500);
+
+}
+
+});
+
+/* music recorder */
 
 recorder.ondataavailable=e=>chunks.push(e.data);
 
@@ -199,197 +398,101 @@ let url=URL.createObjectURL(blob);
 let link=document.getElementById("downloadLink");
 link.href=url;
 link.download="orlen-music.mp3";
-link.innerText="Télécharger en MP3";
+link.innerText="Télécharger musique";
 
 chunks=[];
-statusText.innerText="Statut : enregistrement terminé";
+statusText.innerText="Statut : terminé";
 
 }
-
-function connect(node){
-node.connect(audioCtx.destination);
-node.connect(mediaDest);
-}
-
-/* instruments */
-
-function playPiano(freq){
-
-let osc=audioCtx.createOscillator();
-let gain=audioCtx.createGain();
-
-osc.type="sine";
-osc.frequency.value=freq;
-
-gain.gain.value=0.4;
-
-osc.connect(gain);
-connect(gain);
-
-osc.start();
-osc.stop(audioCtx.currentTime+0.6);
-
-}
-
-function playSynth(freq){
-
-let osc=audioCtx.createOscillator();
-let gain=audioCtx.createGain();
-
-osc.type="sawtooth";
-osc.frequency.value=freq;
-
-gain.gain.value=0.3;
-
-osc.connect(gain);
-connect(gain);
-
-osc.start();
-osc.stop(audioCtx.currentTime+0.8);
-
-}
-
-function playGuitar(freq){
-
-let delay=audioCtx.createDelay();
-let gain=audioCtx.createGain();
-
-let osc=audioCtx.createOscillator();
-osc.type="triangle";
-osc.frequency.value=freq;
-
-delay.delayTime.value=0.02;
-
-gain.gain.value=0.4;
-
-osc.connect(delay);
-delay.connect(gain);
-connect(gain);
-
-osc.start();
-osc.stop(audioCtx.currentTime+1);
-
-}
-
-/* piano keys */
-
-document.querySelectorAll(".key").forEach(key=>{
-
-key.addEventListener("mousedown",()=>{
-
-let freq=parseFloat(key.dataset.note);
-
-if(instrument==="piano") playPiano(freq);
-if(instrument==="guitar") playGuitar(freq);
-if(instrument==="synth") playSynth(freq);
-
-});
-
-});
-
-/* drums */
-
-function noise(duration,freq){
-
-let bufferSize=audioCtx.sampleRate*duration;
-let buffer=audioCtx.createBuffer(1,bufferSize,audioCtx.sampleRate);
-let data=buffer.getChannelData(0);
-
-for(let i=0;i<bufferSize;i++) data[i]=Math.random()*2-1;
-
-let source=audioCtx.createBufferSource();
-source.buffer=buffer;
-
-let filter=audioCtx.createBiquadFilter();
-filter.frequency.value=freq;
-
-source.connect(filter);
-connect(filter);
-
-source.start();
-
-}
-
-function kick(){
-let osc=audioCtx.createOscillator();
-let gain=audioCtx.createGain();
-
-osc.frequency.setValueAtTime(150,audioCtx.currentTime);
-osc.frequency.exponentialRampToValueAtTime(0.01,audioCtx.currentTime+0.5);
-
-gain.gain.setValueAtTime(1,audioCtx.currentTime);
-gain.gain.exponentialRampToValueAtTime(0.001,audioCtx.currentTime+0.5);
-
-osc.connect(gain);
-connect(gain);
-
-osc.start();
-osc.stop(audioCtx.currentTime+0.5);
-}
-
-function kick2(){
-let osc=audioCtx.createOscillator();
-let gain=audioCtx.createGain();
-osc.type="square";
-osc.frequency.value=90;
-
-gain.gain.value=0.8;
-
-osc.connect(gain);
-connect(gain);
-
-osc.start();
-osc.stop(audioCtx.currentTime+0.4);
-}
-
-function snare(){noise(0.2,1200)}
-function snare2(){noise(0.25,800)}
-function hihat(){noise(0.05,9000)}
-function hihat2(){noise(0.08,7000)}
-function clap(){noise(0.15,3000)}
-
-
-document.querySelectorAll(".pad").forEach(p=>{
-
-p.onclick=()=>{
-
-let d=p.dataset.drum;
-
-if(d==="kick") kick();
-if(d==="kick2") kick2();
-if(d==="snare") snare();
-if(d==="snare2") snare2();
-if(d==="hihat") hihat();
-if(d==="hihat2") hihat2();
-if(d==="clap") clap();
-if(d==="noise") noise(0.4,500);
-
-}
-
-});
-
-/* recording */
 
 function startRecording(){
 
-if(recorder.state==="recording"){
-statusText.innerText="Statut : déjà en enregistrement";
-return;
-}
+if(recorder.state==="recording")return;
 
 recorder.start();
-statusText.innerText="Statut : enregistrement en cours";
+statusText.innerText="Statut : enregistrement...";
 
 }
 
 function stopRecording(){
 
-if(recorder.state!=="recording"){
-statusText.innerText="Statut : aucun enregistrement actif";
-return;
-}
+if(recorder.state!=="recording")return;
 
 recorder.stop();
+
+}
+
+/* robot voice */
+
+const voiceSelect=document.getElementById("voiceSelect");
+
+function loadVoices(){
+
+let voices=speechSynthesis.getVoices();
+
+voiceSelect.innerHTML="";
+
+voices.forEach((v,i)=>{
+
+let opt=document.createElement("option");
+opt.value=i;
+opt.text=v.name;
+voiceSelect.appendChild(opt);
+
+});
+
+}
+
+speechSynthesis.onvoiceschanged=loadVoices;
+loadVoices();
+
+function speakText(){
+
+let txt=document.getElementById("robotText").value;
+
+let utter=new SpeechSynthesisUtterance(txt);
+
+let voices=speechSynthesis.getVoices();
+utter.voice=voices[voiceSelect.value];
+
+speechSynthesis.speak(utter);
+
+}
+
+/* mic recording */
+
+let micRecorder;
+let micChunks=[];
+
+async function startMicRecord(){
+
+let stream=await navigator.mediaDevices.getUserMedia({audio:true});
+
+micRecorder=new MediaRecorder(stream);
+
+micRecorder.ondataavailable=e=>micChunks.push(e.data);
+
+micRecorder.onstop=()=>{
+
+let blob=new Blob(micChunks,{type:'audio/webm'});
+let url=URL.createObjectURL(blob);
+
+let link=document.getElementById("micDownload");
+link.href=url;
+link.download="voice.mp3";
+link.innerText="Télécharger voix";
+
+micChunks=[];
+
+}
+
+micRecorder.start();
+
+}
+
+function stopMicRecord(){
+
+if(micRecorder) micRecorder.stop();
 
 }
 
