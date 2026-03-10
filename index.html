@@ -15,7 +15,7 @@
 
 body{
 margin:0;
-font-family:"Segoe UI",Arial,Helvetica,sans-serif;
+font-family:"Segoe UI",Arial;
 background:linear-gradient(135deg,var(--bg1),var(--bg2),var(--bg3));
 color:white;
 }
@@ -28,91 +28,98 @@ font-weight:bold;
 letter-spacing:2px;
 }
 
-.subtitle{
-text-align:center;
-opacity:.8;
-margin-bottom:20px;
-}
+.subtitle{text-align:center;opacity:.8;margin-bottom:20px}
 
 .studio{
-max-width:1400px;
+max-width:1500px;
 margin:auto;
-padding:25px;
+padding:20px;
 display:grid;
 grid-template-columns:1fr 1fr;
-gap:25px;
+gap:20px;
 }
 
 .panel{
 background:rgba(255,255,255,0.08);
-padding:22px;
+padding:20px;
 border-radius:16px;
 backdrop-filter:blur(10px);
-box-shadow:0 10px 30px rgba(0,0,0,.35);
+box-shadow:0 10px 30px rgba(0,0,0,.4);
 }
-
-.panel h2{margin-top:0}
 
 /* piano */
 
-.piano-wrapper{
-overflow:hidden;
-transition:height .4s ease;
-}
+.piano-scroll{overflow-x:auto}
 
 .piano{
 display:flex;
 height:180px;
-user-select:none;
+min-width:1200px;
 }
 
 .key{
-flex:1;
+width:60px;
+height:180px;
 background:white;
 border:1px solid #111;
 position:relative;
 cursor:pointer;
+transition:.1s;
 }
 
-.key:active{background:#ddd}
+.key.active{
+background:#00e0ff;
+box-shadow:0 0 20px #00e0ff;
+}
 
 .key span{
 position:absolute;
 bottom:6px;
 left:50%;
 transform:translateX(-50%);
-font-size:11px;
+font-size:10px;
 color:black;
 }
 
-.piano-controls{
-margin-top:10px;
-}
+/* drum machine */
 
-/* drums */
-
-.pads{
+.drum-grid{
 display:grid;
-grid-template-columns:repeat(4,1fr);
-gap:10px;
+grid-template-columns:repeat(16,1fr);
+gap:4px;
 margin-top:10px;
 }
 
-.pad{
-background:var(--accent);
-padding:16px;
-text-align:center;
-border-radius:10px;
-font-weight:bold;
+.step{
+height:28px;
+background:#444;
+border-radius:4px;
 cursor:pointer;
 }
 
-.pad:active{transform:scale(.95)}
+.step.active{background:#00e0ff}
 
-/* controls */
+/* mixer */
+
+.mixer{
+display:flex;
+flex-direction:column;
+gap:10px;
+}
+
+input[type=range]{width:100%}
+
+/* visualizer */
+
+canvas{
+width:100%;
+height:80px;
+background:black;
+border-radius:10px;
+}
 
 button,select{
-padding:10px 15px;
+padding:8px 14px;
 border:none;
 border-radius:8px;
 background:var(--accent);
@@ -121,100 +128,73 @@ cursor:pointer;
 margin:4px;
 }
 
-textarea{
-width:100%;
-margin-top:10px;
-border-radius:10px;
-border:none;
-padding:10px;
-}
+audio{width:100%;margin-top:10px}
 
-.status{margin-top:8px;font-size:14px;opacity:.8}
-
-.player{
-margin-top:12px;
-}
-
-audio{
-width:100%;
-margin-top:6px;
-}
-
-footer{
-text-align:center;
-padding:25px;
-opacity:.7;
-}
-
+footer{text-align:center;padding:20px;opacity:.7}
 </style>
 </head>
 
 <body>
 
 <header>🎵 ORLEN music base</header>
-<div class="subtitle">Studio musical web avancé</div>
+<div class="subtitle">Darwin 5 studio musical</div>
 
 <div class="studio">
 
-<!-- instrument -->
+<!-- piano -->
 <div class="panel">
-<h2>🎹 Piano</h2>
+<h2>🎹 Piano 3 octaves</h2>
 
 <select id="instrumentSelect">
-<option value="piano">Piano</option>
-<option value="synth">Synthé</option>
-<option value="organ">Organ</option>
+<option value="sine">Piano</option>
+<option value="sawtooth">Synthé</option>
+<option value="square">Organ</option>
 </select>
 
-<div class="piano-controls">
-<button onclick="togglePiano()">Rétracter / Agrandir piano</button>
-</div>
-
-<div class="piano-wrapper" id="pianoWrap">
+<div class="piano-scroll">
 <div class="piano" id="piano"></div>
 </div>
 
-<p>Clavier PC : A S D F G H J K L ; Q W E R T Y</p>
+<p>Clavier PC : A S D F G H J K L ; Q W E R T Y U I</p>
 
 </div>
 
-<!-- drums -->
+<!-- drum machine -->
 <div class="panel">
-<h2>🥁 Batterie réaliste</h2>
+<h2>🥁 Drum machine (16 steps)</h2>
 
-<div class="pads">
-<div class="pad" data-sample="kick">Kick</div>
-<div class="pad" data-sample="snare">Snare</div>
-<div class="pad" data-sample="hihat">HiHat</div>
-<div class="pad" data-sample="clap">Clap</div>
-<div class="pad" data-sample="tom">Tom</div>
-<div class="pad" data-sample="rim">Rim</div>
-<div class="pad" data-sample="perc">Perc</div>
-<div class="pad" data-sample="fx">FX</div>
+<button onclick="toggleSequencer()">Play / Stop</button>
+
+<div class="drum-grid" id="drumGrid"></div>
+
+</div>
+
+<!-- mixer -->
+<div class="panel">
+<h2>🎛 Mixeur</h2>
+
+<div class="mixer">
+
+<label>Piano volume</label>
+<input type="range" id="pianoVol" min="0" max="1" step="0.01" value="0.4">
+
+<label>Drums volume</label>
+<input type="range" id="drumVol" min="0" max="1" step="0.01" value="0.8">
+
 </div>
 
 </div>
 
-<!-- recorder -->
+<!-- recording -->
 <div class="panel">
 <h2>🎙 Enregistrement</h2>
 
 <button onclick="startRecording()">Start</button>
 <button onclick="stopRecording()">Stop</button>
 
-<div class="status" id="recStatus">Statut : prêt</div>
+<div id="player"></div>
 
-<div class="player" id="playerArea"></div>
-
-</div>
-
-<!-- robot -->
-<div class="panel">
-<h2>🤖 Robot vocal</h2>
-
-<select id="voiceSelect"></select>
-<textarea id="robotText" placeholder="texte à lire..."></textarea>
-<button onclick="speakText()">Lire</button>
+<canvas id="visualizer"></canvas>
 
 </div>
 
@@ -225,137 +205,157 @@ opacity:.7;
 <script>
 
 const audioCtx=new(window.AudioContext||window.webkitAudioContext)();
+
+const analyser=audioCtx.createAnalyser();
+analyser.fftSize=256;
+
 const mediaDest=audioCtx.createMediaStreamDestination();
+
+analyser.connect(audioCtx.destination);
+analyser.connect(mediaDest);
+
 const recorder=new MediaRecorder(mediaDest.stream);
 
 let chunks=[];
-let instrument="piano";
 
-const statusText=document.getElementById("recStatus");
-
-/* piano generation */
-
-const notes=[
-261.63,277,293.66,311,329.63,349.23,369,392,415,440,466,493.88,
-523,554,587,622,659
-];
+/* piano */
 
 const piano=document.getElementById("piano");
+const notes=[];
 
-notes.forEach((n,i)=>{
+for(let i=0;i<36;i++){
+notes.push(130.81*Math.pow(2,i/12));
+}
+
+notes.forEach((freq,i)=>{
 
 let k=document.createElement("div");
 k.className="key";
-k.dataset.note=n;
+k.dataset.freq=freq;
 
 let label=document.createElement("span");
 label.innerText=i+1;
-k.appendChild(label);
 
+k.appendChild(label);
 piano.appendChild(k);
 
 });
 
-/* toggle piano */
-
-let open=true;
-function togglePiano(){
-
-let wrap=document.getElementById("pianoWrap");
-
-if(open){
-wrap.style.height="60px";
-open=false;
-}else{
-wrap.style.height="180px";
-open=true;
-}
-
-}
-
-/* instrument change */
+let instrument="sine";
 
 document.getElementById("instrumentSelect").onchange=e=>instrument=e.target.value;
 
-/* sound generator */
-
-function play(freq){
+function play(freq,keyEl){
 
 let osc=audioCtx.createOscillator();
 let gain=audioCtx.createGain();
 
-if(instrument==="piano")osc.type="sine";
-if(instrument==="synth")osc.type="sawtooth";
-if(instrument==="organ")osc.type="square";
-
+osc.type=instrument;
 osc.frequency.value=freq;
 
-gain.gain.value=.35;
+gain.gain.value=document.getElementById("pianoVol").value;
 
 osc.connect(gain);
-gain.connect(audioCtx.destination);
-gain.connect(mediaDest);
+gain.connect(analyser);
 
 osc.start();
-osc.stop(audioCtx.currentTime+.7);
+osc.stop(audioCtx.currentTime+.6);
+
+keyEl.classList.add("active");
+setTimeout(()=>keyEl.classList.remove("active"),150);
 
 }
 
-/* mouse piano */
 
-document.addEventListener("click",e=>{
-if(e.target.classList.contains("key")){
-play(parseFloat(e.target.dataset.note));
-}
+document.querySelectorAll('.key').forEach(k=>{
+k.onclick=()=>play(parseFloat(k.dataset.freq),k);
 });
 
-/* keyboard map */
+/* keyboard */
 
-const keys="asdfghjkl;qwerty";
+const map="asdfghjkl;qwertyui";
 
 window.addEventListener("keydown",e=>{
 
-let i=keys.indexOf(e.key);
+let i=map.indexOf(e.key);
 
 if(i>-1 && notes[i]){
-play(notes[i]);
+
+let key=document.querySelectorAll('.key')[i];
+play(notes[i],key);
+
 }
 
 });
 
-/* realistic drum samples */
+/* drum machine */
 
-const samples={
-kick:new Audio("https://cdn.jsdelivr.net/gh/jakesgordon/javascript-drum-machine/sounds/kick.wav"),
-snare:new Audio("https://cdn.jsdelivr.net/gh/jakesgordon/javascript-drum-machine/sounds/snare.wav"),
-hihat:new Audio("https://cdn.jsdelivr.net/gh/jakesgordon/javascript-drum-machine/sounds/hihat.wav"),
-clap:new Audio("https://cdn.jsdelivr.net/gh/jakesgordon/javascript-drum-machine/sounds/clap.wav"),
-tom:new Audio("https://cdn.jsdelivr.net/gh/jakesgordon/javascript-drum-machine/sounds/tom.wav"),
-rim:new Audio("https://cdn.jsdelivr.net/gh/jakesgordon/javascript-drum-machine/sounds/rim.wav"),
-perc:new Audio("https://cdn.jsdelivr.net/gh/jakesgordon/javascript-drum-machine/sounds/perc.wav"),
-fx:new Audio("https://cdn.jsdelivr.net/gh/jakesgordon/javascript-drum-machine/sounds/cowbell.wav")
+const drumGrid=document.getElementById("drumGrid");
+
+let steps=[];
+
+for(let i=0;i<16;i++){
+
+let s=document.createElement("div");
+s.className="step";
+
+s.onclick=()=>{
+s.classList.toggle("active");
 };
 
-Object.values(samples).forEach(a=>{
-let src=audioCtx.createMediaElementSource(a);
-src.connect(audioCtx.destination);
-src.connect(mediaDest);
-});
-
-
-document.querySelectorAll(".pad").forEach(p=>{
-
-p.onclick=()=>{
-
-let s=samples[p.dataset.sample];
-if(!s)return;
-
-s.currentTime=0;
-s.play();
+steps.push(s);
+drumGrid.appendChild(s);
 
 }
 
-});
+let stepIndex=0;
+let playing=false;
+
+function kick(){
+
+let osc=audioCtx.createOscillator();
+let gain=audioCtx.createGain();
+
+osc.frequency.setValueAtTime(150,audioCtx.currentTime);
+osc.frequency.exponentialRampToValueAtTime(0.01,audioCtx.currentTime+.5);
+
+gain.gain.setValueAtTime(document.getElementById("drumVol").value,audioCtx.currentTime);
+
+gain.gain.exponentialRampToValueAtTime(0.001,audioCtx.currentTime+.5);
+
+osc.connect(gain);
+gain.connect(analyser);
+
+osc.start();
+osc.stop(audioCtx.currentTime+.5);
+
+}
+
+function sequencer(){
+
+if(!playing)return;
+
+let step=steps[stepIndex];
+
+if(step.classList.contains("active")){
+kick();
+}
+
+stepIndex=(stepIndex+1)%16;
+
+setTimeout(sequencer,150);
+
+}
+
+function toggleSequencer(){
+
+playing=!playing;
+
+if(playing){
+sequencer();
+}
+
+}
 
 /* recording */
 
@@ -366,146 +366,58 @@ recorder.onstop=()=>{
 let blob=new Blob(chunks,{type:'audio/webm'});
 let url=URL.createObjectURL(blob);
 
-let player=document.getElementById("playerArea");
-
 player.innerHTML=`
-<audio controls id="recordedAudio" src="${url}"></audio>
+<audio controls loop src="${url}"></audio>
 <br>
-<button onclick="toggleLoop()">Activer / désactiver boucle</button>
-<a href="${url}" download="orlen-recording.webm">
+<a href="${url}" download="orlen-track.wav">
 <button>Télécharger</button>
 </a>
 `;
 
 chunks=[];
-statusText.innerText="Statut : enregistrement terminé";
 
-}
+};
 
 function startRecording(){
-
-if(recorder.state==="recording")return;
-
-recorder.start();
-statusText.innerText="Statut : enregistrement...";
-
+if(recorder.state!=="recording")recorder.start();
 }
 
 function stopRecording(){
+if(recorder.state==="recording")recorder.stop();
+}
 
-if(recorder.state!=="recording")return;
+/* visualizer */
 
-recorder.stop();
+const canvas=document.getElementById("visualizer");
+const ctx=canvas.getContext("2d");
+
+const data=new Uint8Array(analyser.frequencyBinCount);
+
+function draw(){
+
+requestAnimationFrame(draw);
+
+analyser.getByteFrequencyData(data);
+
+ctx.fillStyle="black";
+ctx.fillRect(0,0,canvas.width,canvas.height);
+
+let w=canvas.width/data.length;
+
+for(let i=0;i<data.length;i++){
+
+let h=data[i]/2;
+
+ctx.fillStyle="#00e0ff";
+ctx.fillRect(i*w,canvas.height-h,w-1,h);
 
 }
 
-function toggleLoop(){
-
-let audio=document.getElementById("recordedAudio");
-if(!audio)return;
-
-audio.loop=!audio.loop;
-
 }
 
-/* robot voice */
-
-const voiceSelect=document.getElementById("voiceSelect");
-
-function loadVoices(){
-
-let voices=speechSynthesis.getVoices();
-
-voiceSelect.innerHTML="";
-
-voices.forEach((v,i)=>{
-let o=document.createElement("option");
-o.value=i;
-o.text=v.name;
-voiceSelect.appendChild(o);
-});
-
-}
-
-speechSynthesis.onvoiceschanged=loadVoices;
-loadVoices();
-
-function speakText(){
-
-let txt=document.getElementById("robotText").value;
-let u=new SpeechSynthesisUtterance(txt);
-
-let voices=speechSynthesis.getVoices();
-u.voice=voices[voiceSelect.value];
-
-speechSynthesis.speak(u);
-
-}
+draw();
 
 </script>
-
-
-
-<!-- POPUP UPDATE -->
-<style>
-#updatePopup{
-position:fixed;
-top:0;
-left:0;
-width:100%;
-height:100%;
-background:rgba(0,0,0,0.7);
-display:flex;
-align-items:center;
-justify-content:center;
-z-index:9999;
-font-family:Segoe UI,Arial;
-}
-
-#updateBox{
-background:linear-gradient(135deg,#1f2f38,#203a43,#2c5364);
-padding:40px;
-border-radius:18px;
-text-align:center;
-box-shadow:0 20px 60px rgba(0,0,0,0.6);
-animation:pop .5s ease;
-max-width:420px;
-}
-
-#updateBox h1{
-margin-top:0;
-font-size:28px;
-}
-
-#updateBox p{
-opacity:.85;
-margin:10px 0 20px 0;
-}
-
-#updateBox button{
-padding:12px 22px;
-font-size:16px;
-border:none;
-border-radius:10px;
-background:#00e0ff;
-font-weight:bold;
-cursor:pointer;
-}
-
-@keyframes pop{
-0%{transform:scale(.7);opacity:0}
-100%{transform:scale(1);opacity:1}
-}
-</style>
-
-<div id="updatePopup">
-<div id="updateBox">
-<h1>🚀 Mise à jour énorme</h1>
-<p><strong>Version Darwin 5</strong></p>
-<p>Nouveau piano étendu, batterie améliorée, enregistrement avancé et robot vocal.</p>
-<button onclick="document.getElementById('updatePopup').style.display='none'">Entrer dans le studio</button>
-</div>
-</div>
 
 </body>
 </html>
