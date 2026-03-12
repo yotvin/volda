@@ -3,421 +3,85 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ORLEN music base</title>
+<title>ORLEN devient Licfap</title>
 
 <style>
-:root{
---bg1:#0f2027;
---bg2:#203a43;
---bg3:#2c5364;
---accent:#00e0ff;
-}
 
 body{
-margin:0;
-font-family:"Segoe UI",Arial;
-background:linear-gradient(135deg,var(--bg1),var(--bg2),var(--bg3));
-color:white;
+    margin:0;
+    height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    background:#020617;
+    font-family:Arial, Helvetica, sans-serif;
+    overflow:hidden;
 }
 
-header{
-text-align:center;
-padding:28px;
-font-size:34px;
-font-weight:bold;
-letter-spacing:2px;
+/* fond néon animé */
+
+body::before{
+    content:"";
+    position:absolute;
+    width:200%;
+    height:200%;
+    background:
+        radial-gradient(circle at 30% 30%, #00eaff55, transparent 40%),
+        radial-gradient(circle at 70% 60%, #0066ff55, transparent 40%),
+        radial-gradient(circle at 50% 80%, #00ffff55, transparent 40%);
+    animation:moveLights 10s linear infinite;
 }
 
-.subtitle{text-align:center;opacity:.8;margin-bottom:20px}
-
-.studio{
-max-width:1500px;
-margin:auto;
-padding:20px;
-display:grid;
-grid-template-columns:1fr 1fr;
-gap:20px;
+@keyframes moveLights{
+    from{transform:translate(0,0);}
+    to{transform:translate(-200px,-200px);}
 }
 
-.panel{
-background:rgba(255,255,255,0.08);
-padding:20px;
-border-radius:16px;
-backdrop-filter:blur(10px);
-box-shadow:0 10px 30px rgba(0,0,0,.4);
+.container{
+    position:relative;
+    text-align:center;
+    padding:60px;
+    border-radius:20px;
+    background:rgba(5,15,40,0.8);
+    box-shadow:
+        0 0 20px #00eaff,
+        0 0 40px #00eaff,
+        inset 0 0 20px #0077ff;
 }
 
-/* piano */
+/* titre néon */
 
-.piano-scroll{overflow-x:auto}
-
-.piano{
-display:flex;
-height:120px;
-min-width:900px;
+h1{
+    font-size:60px;
+    color:#00eaff;
+    text-shadow:
+        0 0 10px #00eaff,
+        0 0 20px #00eaff,
+        0 0 40px #008cff;
+    margin-bottom:30px;
 }
 
-.key{
-width:40px;
-height:120px;
-background:white;
-border:1px solid #111;
-position:relative;
-cursor:pointer;
-transition:.1s;
+/* texte */
+
+p{
+    font-size:22px;
+    color:#dbeafe;
+    text-shadow:0 0 10px #00bfff;
+    max-width:700px;
 }
 
-.key.active{
-background:#00e0ff;
-box-shadow:0 0 20px #00e0ff;
-}
-
-.key span{
-position:absolute;
-bottom:6px;
-left:50%;
-transform:translateX(-50%);
-font-size:10px;
-color:black;
-}
-
-/* drum machine */
-
-.drum-grid{
-display:grid;
-grid-template-columns:repeat(16,1fr);
-gap:4px;
-margin-top:10px;
-}
-
-.step{
-height:28px;
-background:#444;
-border-radius:4px;
-cursor:pointer;
-}
-
-.step.active{background:#00e0ff}
-
-/* mixer */
-
-.mixer{
-display:flex;
-flex-direction:column;
-gap:10px;
-}
-
-input[type=range]{width:100%}
-
-/* visualizer */
-
-canvas{
-width:100%;
-height:80px;
-background:black;
-border-radius:10px;
-}
-
-button,select{
-padding:8px 14px;
-border:none;
-border-radius:8px;
-background:var(--accent);
-font-weight:bold;
-cursor:pointer;
-margin:4px;
-}
-
-audio{width:100%;margin-top:10px}
-
-footer{text-align:center;padding:20px;opacity:.7}
 </style>
 </head>
 
 <body>
 
-<header>🎵 ORLEN music base</header>
-<div class="subtitle">Darwin 5 studio musical</div>
-
-<div class="studio">
-
-<!-- piano -->
-<div class="panel">
-<h2>🎹 Piano 3 octaves</h2>
-
-<select id="instrumentSelect">
-<option value="sine">Piano</option>
-<option value="sawtooth">Synthé</option>
-<option value="square">Organ</option>
-</select>
-
-<div class="piano-scroll">
-<div class="piano" id="piano"></div>
+<div class="container">
+<h1>ORLEN devient Licfap</h1>
+<p>
+le célèbre site du groupe Yotvin rénové en site fonctionnel,
+rien ne change, juste l'identité    https://yotvin.github.io/Licfap/
+</p>
 </div>
-
-<p>Clavier PC : A S D F G H J K L ; Q W E R T Y U I</p>
-
-</div>
-
-<!-- drum machine -->
-<div class="panel">
-<h2>🥁 Drum machine (16 steps)</h2>
-
-<button onclick="toggleSequencer()">Play / Stop</button>
-
-<div class="drum-grid" id="drumGrid"></div>
-
-</div>
-
-<!-- mixer -->
-<div class="panel">
-<h2>🎛 Mixeur</h2>
-
-<div class="mixer">
-
-<label>Piano volume</label>
-<input type="range" id="pianoVol" min="0" max="1" step="0.01" value="0.4">
-
-<label>Drums volume</label>
-<input type="range" id="drumVol" min="0" max="1" step="0.01" value="0.8">
-
-</div>
-
-</div>
-
-<!-- recording -->
-<div class="panel">
-<h2>🎙 Enregistrement</h2>
-
-<button onclick="startRecording()">Start</button>
-<button onclick="stopRecording()">Stop</button>
-
-<div id="player"></div>
-
-<canvas id="visualizer"></canvas>
-
-</div>
-
-</div>
-
-<footer>ORLEN music base</footer>
-
-<script>
-
-const audioCtx=new(window.AudioContext||window.webkitAudioContext)();
-
-const analyser=audioCtx.createAnalyser();
-analyser.fftSize=256;
-
-const mediaDest=audioCtx.createMediaStreamDestination();
-
-analyser.connect(audioCtx.destination);
-analyser.connect(mediaDest);
-
-const recorder=new MediaRecorder(mediaDest.stream);
-
-let chunks=[];
-
-/* piano */
-
-const piano=document.getElementById("piano");
-const notes=[];
-
-for(let i=0;i<36;i++){
-notes.push(130.81*Math.pow(2,i/12));
-}
-
-notes.forEach((freq,i)=>{
-
-let k=document.createElement("div");
-k.className="key";
-k.dataset.freq=freq;
-
-let label=document.createElement("span");
-label.innerText=i+1;
-
-k.appendChild(label);
-piano.appendChild(k);
-
-});
-
-let instrument="sine";
-
-document.getElementById("instrumentSelect").onchange=e=>instrument=e.target.value;
-
-function play(freq,keyEl){
-
-let osc=audioCtx.createOscillator();
-let gain=audioCtx.createGain();
-
-osc.type=instrument;
-osc.frequency.value=freq;
-
-gain.gain.value=document.getElementById("pianoVol").value;
-
-osc.connect(gain);
-gain.connect(analyser);
-
-osc.start();
-osc.stop(audioCtx.currentTime+.6);
-
-keyEl.classList.add("active");
-setTimeout(()=>keyEl.classList.remove("active"),150);
-
-}
-
-
-document.querySelectorAll('.key').forEach(k=>{
-k.onclick=()=>play(parseFloat(k.dataset.freq),k);
-});
-
-/* keyboard */
-
-const map="asdfghjkl;qwertyui";
-
-window.addEventListener("keydown",e=>{
-
-let i=map.indexOf(e.key);
-
-if(i>-1 && notes[i]){
-
-let key=document.querySelectorAll('.key')[i];
-play(notes[i],key);
-
-}
-
-});
-
-/* drum machine */
-
-const drumGrid=document.getElementById("drumGrid");
-
-let steps=[];
-
-for(let i=0;i<16;i++){
-
-let s=document.createElement("div");
-s.className="step";
-
-s.onclick=()=>{
-s.classList.toggle("active");
-};
-
-steps.push(s);
-drumGrid.appendChild(s);
-
-}
-
-let stepIndex=0;
-let playing=false;
-
-function kick(){
-
-let osc=audioCtx.createOscillator();
-let gain=audioCtx.createGain();
-
-osc.frequency.setValueAtTime(150,audioCtx.currentTime);
-osc.frequency.exponentialRampToValueAtTime(0.01,audioCtx.currentTime+.5);
-
-gain.gain.setValueAtTime(document.getElementById("drumVol").value,audioCtx.currentTime);
-
-gain.gain.exponentialRampToValueAtTime(0.001,audioCtx.currentTime+.5);
-
-osc.connect(gain);
-gain.connect(analyser);
-
-osc.start();
-osc.stop(audioCtx.currentTime+.5);
-
-}
-
-function sequencer(){
-
-if(!playing)return;
-
-let step=steps[stepIndex];
-
-if(step.classList.contains("active")){
-kick();
-}
-
-stepIndex=(stepIndex+1)%16;
-
-setTimeout(sequencer,150);
-
-}
-
-function toggleSequencer(){
-
-playing=!playing;
-
-if(playing){
-sequencer();
-}
-
-}
-
-/* recording */
-
-recorder.ondataavailable=e=>chunks.push(e.data);
-
-recorder.onstop=()=>{
-
-let blob=new Blob(chunks,{type:'audio/webm'});
-let url=URL.createObjectURL(blob);
-
-player.innerHTML=`
-<audio controls loop src="${url}"></audio>
-<br>
-<a href="${url}" download="orlen-track.wav">
-<button>Télécharger</button>
-</a>
-`;
-
-chunks=[];
-
-};
-
-function startRecording(){
-if(recorder.state!=="recording")recorder.start();
-}
-
-function stopRecording(){
-if(recorder.state==="recording")recorder.stop();
-}
-
-/* visualizer */
-
-const canvas=document.getElementById("visualizer");
-const ctx=canvas.getContext("2d");
-
-const data=new Uint8Array(analyser.frequencyBinCount);
-
-function draw(){
-
-requestAnimationFrame(draw);
-
-analyser.getByteFrequencyData(data);
-
-ctx.fillStyle="black";
-ctx.fillRect(0,0,canvas.width,canvas.height);
-
-let w=canvas.width/data.length;
-
-for(let i=0;i<data.length;i++){
-
-let h=data[i]/2;
-
-ctx.fillStyle="#00e0ff";
-ctx.fillRect(i*w,canvas.height-h,w-1,h);
-
-}
-
-}
-
-draw();
-
-</script>
 
 </body>
 </html>
