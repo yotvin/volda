@@ -12,13 +12,26 @@ body {
     color:white;
 }
 
+/* HEADER */
 header {
     background:#1e293b;
     padding:15px;
-    text-align:center;
-    font-size:22px;
 }
 
+.logoContainer {
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:10px;
+}
+
+.logo {
+    width:35px;
+    height:35px;
+    border-radius:8px;
+}
+
+/* CHAT */
 #chat {
     height:70vh;
     overflow-y:auto;
@@ -30,17 +43,19 @@ header {
     padding:12px;
     border-radius:12px;
     max-width:80%;
-    line-height:1.4em;
 }
 
 .user {background:#3b82f6; margin-left:auto;}
 .bot {background:#334155;}
+.typing {opacity:0.6; font-style:italic;}
 
-.typing {
-    opacity:0.6;
-    font-style:italic;
+img {
+    width:100%;
+    border-radius:10px;
+    margin-top:10px;
 }
 
+/* INPUT */
 #inputZone {
     display:flex;
     padding:10px;
@@ -62,18 +77,17 @@ button {
     border-radius:8px;
     cursor:pointer;
 }
-
-img {
-    max-width:100%;
-    margin-top:10px;
-    border-radius:10px;
-}
 </style>
 </head>
 
 <body>
 
-<header>🤖 Volda AI</header>
+<header>
+    <div class="logoContainer">
+        <img src="volda logo.png" class="logo">
+        <span>Volda AI</span>
+    </div>
+</header>
 
 <div id="chat"></div>
 
@@ -85,133 +99,107 @@ img {
 <script>
 
 const chat = document.getElementById("chat");
+let memory = [];
 
-// ===== MESSAGE =====
-function addMessage(type){
+// MESSAGE
+function addMessage(type, text=""){
     let div = document.createElement("div");
     div.className = "message " + type;
+    div.innerHTML = text;
     chat.appendChild(div);
     chat.scrollTop = chat.scrollHeight;
     return div;
 }
 
-// ===== TYPEWRITER (TEXTE SEULEMENT) =====
-function typeText(element, text, speed=15){
-    let i = 0;
-    element.innerHTML = "";
-
-    function typing(){
-        if(i < text.length){
-            element.innerHTML += text.charAt(i);
-            i++;
-            setTimeout(typing, speed);
+// TYPEWRITER
+function typeText(el, text, speed=12){
+    let i=0;
+    el.innerHTML="";
+    function t(){
+        if(i<text.length){
+            el.innerHTML+=text[i++];
+            setTimeout(t,speed);
         }
     }
-    typing();
+    t();
 }
 
-// ===== CLEAN =====
-function clean(text){
-    return text.toLowerCase()
-    .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+// CLEAN
+function clean(t){
+    return t.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"");
 }
 
-// ===== RANDOM =====
-function random(arr){
-    return arr[Math.floor(Math.random()*arr.length)];
-}
-
-// ===== IA =====
-function getAIResponse(input){
+// IA
+function getAI(input){
 
     let txt = clean(input);
+    memory.push(input);
 
     // HEURE
-    if(/heure|temps/.test(txt)){
-        return {
-            text: "Il est actuellement " + new Date().toLocaleTimeString(),
-            html: ""
-        };
+    if(/heure/.test(txt)){
+        return {text:"Il est actuellement "+new Date().toLocaleTimeString()};
     }
 
     // SALUT
-    if(/bonjour|salut|coucou|hey|yo/.test(txt)){
-        return {
-            text: random([
-                "Bonjour 😊 j'espère que tu vas bien.",
-                "Salut 👋 content de te voir ici.",
-                "Coucou 😄 je suis prêt à discuter."
-            ]),
-            html: ""
-        };
+    if(/bonjour|salut|coucou/.test(txt)){
+        return {text:"Bonjour 😊 content de discuter avec toi."};
     }
 
     // AU REVOIR
-    if(/au revoir|bye|a bientot|a plus/.test(txt)){
-        return {
-            text: random([
-                "Au revoir 👋 à très bientôt.",
-                "À plus tard 😄 prends soin de toi.",
-                "À bientôt ! reviens quand tu veux."
-            ]),
-            html: ""
-        };
+    if(/au revoir|bye/.test(txt)){
+        return {text:"Au revoir 👋 à bientôt !"};
     }
 
-    // IDENTITÉ
-    if(/qui es tu|c est quoi volda/.test(txt)){
-        return {
-            text: "Je suis Volda, une intelligence artificielle simulée capable de répondre naturellement sans API.",
-            html: ""
-        };
+    // MEMOIRE
+    if(/souviens/.test(txt)){
+        return {text:"Je me souviens de : "+memory.slice(-3).join(", ")};
     }
 
-    // PAR DÉFAUT → RECHERCHE
+    // RECHERCHE
     return {
-        text: "Voici ce que j'ai trouvé pour toi 🔎",
-        html: `
-        <br><b>${input}</b><br><br>
-
-        ➤ Définition : ${input} est un sujet pouvant être expliqué selon différents contextes.<br><br>
-        ➤ Explication : ce terme est utilisé dans plusieurs domaines selon son usage.<br><br>
-
-        <img src="https://source.unsplash.com/400x200/?${input}">
+        text:"Voici ce que j’ai trouvé pour toi 🔎",
+        html:`
+        <br><b>${input}</b><br>
+        ➤ Définition simple du sujet<br>
+        ➤ Explication rapide<br><br>
+        <img src="https://picsum.photos/400/200?random=${Math.floor(Math.random()*1000)}">
         `
     };
 }
 
-// ===== ENVOI =====
+// ENVOI
 function send(){
 
     let input = document.getElementById("userInput").value;
     if(!input) return;
 
-    // message user
-    let userMsg = addMessage("user");
-    userMsg.innerHTML = input;
+    addMessage("user", input);
 
-    // message bot
-    let botMsg = addMessage("bot typing");
-    botMsg.innerHTML = "Volda réfléchit...";
+    let bot = addMessage("bot typing", "Volda réfléchit...");
 
     setTimeout(()=>{
+        let r = getAI(input);
+        bot.classList.remove("typing");
 
-        let response = getAIResponse(input);
+        typeText(bot, r.text);
 
-        botMsg.classList.remove("typing");
+        if(r.html){
+            setTimeout(()=>{
+                bot.innerHTML += r.html;
+            }, r.text.length*12);
+        }
 
-        // texte animé
-        typeText(botMsg, response.text, 15);
+    },500);
 
-        // HTML (image etc)
-        setTimeout(()=>{
-            botMsg.innerHTML += response.html;
-        }, response.text.length * 15);
-
-    }, 500);
-
-    document.getElementById("userInput").value = "";
+    document.getElementById("userInput").value="";
 }
+
+// ENTRÉE POUR ENVOYER
+document.getElementById("userInput").addEventListener("keypress", function(e){
+    if(e.key==="Enter"){
+        send();
+    }
+});
 
 </script>
 
