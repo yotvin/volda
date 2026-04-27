@@ -2,86 +2,218 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ORLEN devient Licfap</title>
+<title>Volda AI</title>
 
 <style>
-
-body{
+body {
     margin:0;
-    height:100vh;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    background:#020617;
-    font-family:Arial, Helvetica, sans-serif;
-    overflow:hidden;
+    font-family: Arial;
+    background:#0f172a;
+    color:white;
 }
 
-/* fond néon animé */
-
-body::before{
-    content:"";
-    position:absolute;
-    width:200%;
-    height:200%;
-    background:
-        radial-gradient(circle at 30% 30%, #00eaff55, transparent 40%),
-        radial-gradient(circle at 70% 60%, #0066ff55, transparent 40%),
-        radial-gradient(circle at 50% 80%, #00ffff55, transparent 40%);
-    animation:moveLights 10s linear infinite;
-}
-
-@keyframes moveLights{
-    from{transform:translate(0,0);}
-    to{transform:translate(-200px,-200px);}
-}
-
-.container{
-    position:relative;
+header {
+    background:#1e293b;
+    padding:15px;
     text-align:center;
-    padding:60px;
-    border-radius:20px;
-    background:rgba(5,15,40,0.8);
-    box-shadow:
-        0 0 20px #00eaff,
-        0 0 40px #00eaff,
-        inset 0 0 20px #0077ff;
-}
-
-/* titre néon */
-
-h1{
-    font-size:60px;
-    color:#00eaff;
-    text-shadow:
-        0 0 10px #00eaff,
-        0 0 20px #00eaff,
-        0 0 40px #008cff;
-    margin-bottom:30px;
-}
-
-/* texte */
-
-p{
     font-size:22px;
-    color:#dbeafe;
-    text-shadow:0 0 10px #00bfff;
-    max-width:700px;
 }
 
+#chat {
+    height:70vh;
+    overflow-y:auto;
+    padding:15px;
+}
+
+.message {
+    margin:10px 0;
+    padding:12px;
+    border-radius:12px;
+    max-width:80%;
+    line-height:1.4em;
+}
+
+.user {background:#3b82f6; margin-left:auto;}
+.bot {background:#334155;}
+
+.typing {
+    opacity:0.6;
+    font-style:italic;
+}
+
+#inputZone {
+    display:flex;
+    padding:10px;
+    background:#1e293b;
+}
+
+input {
+    flex:1;
+    padding:12px;
+    border:none;
+    border-radius:8px;
+}
+
+button {
+    margin-left:10px;
+    padding:12px;
+    background:#22c55e;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+}
+
+img {
+    max-width:100%;
+    margin-top:10px;
+    border-radius:10px;
+}
 </style>
 </head>
 
 <body>
 
-<div class="container">
-<h1>ORLEN devient Licfap</h1>
-<p>
-le célèbre site du groupe Yotvin rénové en site fonctionnel,
-rien ne change, juste l'identité    https://yotvin.github.io/Licfap/
-</p>
+<header>🤖 Volda AI</header>
+
+<div id="chat"></div>
+
+<div id="inputZone">
+    <input id="userInput" placeholder="Écris ton message...">
+    <button onclick="send()">Envoyer</button>
 </div>
+
+<script>
+
+const chat = document.getElementById("chat");
+
+// ===== MESSAGE =====
+function addMessage(type){
+    let div = document.createElement("div");
+    div.className = "message " + type;
+    chat.appendChild(div);
+    chat.scrollTop = chat.scrollHeight;
+    return div;
+}
+
+// ===== TYPEWRITER (TEXTE SEULEMENT) =====
+function typeText(element, text, speed=15){
+    let i = 0;
+    element.innerHTML = "";
+
+    function typing(){
+        if(i < text.length){
+            element.innerHTML += text.charAt(i);
+            i++;
+            setTimeout(typing, speed);
+        }
+    }
+    typing();
+}
+
+// ===== CLEAN =====
+function clean(text){
+    return text.toLowerCase()
+    .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+}
+
+// ===== RANDOM =====
+function random(arr){
+    return arr[Math.floor(Math.random()*arr.length)];
+}
+
+// ===== IA =====
+function getAIResponse(input){
+
+    let txt = clean(input);
+
+    // HEURE
+    if(/heure|temps/.test(txt)){
+        return {
+            text: "Il est actuellement " + new Date().toLocaleTimeString(),
+            html: ""
+        };
+    }
+
+    // SALUT
+    if(/bonjour|salut|coucou|hey|yo/.test(txt)){
+        return {
+            text: random([
+                "Bonjour 😊 j'espère que tu vas bien.",
+                "Salut 👋 content de te voir ici.",
+                "Coucou 😄 je suis prêt à discuter."
+            ]),
+            html: ""
+        };
+    }
+
+    // AU REVOIR
+    if(/au revoir|bye|a bientot|a plus/.test(txt)){
+        return {
+            text: random([
+                "Au revoir 👋 à très bientôt.",
+                "À plus tard 😄 prends soin de toi.",
+                "À bientôt ! reviens quand tu veux."
+            ]),
+            html: ""
+        };
+    }
+
+    // IDENTITÉ
+    if(/qui es tu|c est quoi volda/.test(txt)){
+        return {
+            text: "Je suis Volda, une intelligence artificielle simulée capable de répondre naturellement sans API.",
+            html: ""
+        };
+    }
+
+    // PAR DÉFAUT → RECHERCHE
+    return {
+        text: "Voici ce que j'ai trouvé pour toi 🔎",
+        html: `
+        <br><b>${input}</b><br><br>
+
+        ➤ Définition : ${input} est un sujet pouvant être expliqué selon différents contextes.<br><br>
+        ➤ Explication : ce terme est utilisé dans plusieurs domaines selon son usage.<br><br>
+
+        <img src="https://source.unsplash.com/400x200/?${input}">
+        `
+    };
+}
+
+// ===== ENVOI =====
+function send(){
+
+    let input = document.getElementById("userInput").value;
+    if(!input) return;
+
+    // message user
+    let userMsg = addMessage("user");
+    userMsg.innerHTML = input;
+
+    // message bot
+    let botMsg = addMessage("bot typing");
+    botMsg.innerHTML = "Volda réfléchit...";
+
+    setTimeout(()=>{
+
+        let response = getAIResponse(input);
+
+        botMsg.classList.remove("typing");
+
+        // texte animé
+        typeText(botMsg, response.text, 15);
+
+        // HTML (image etc)
+        setTimeout(()=>{
+            botMsg.innerHTML += response.html;
+        }, response.text.length * 15);
+
+    }, 500);
+
+    document.getElementById("userInput").value = "";
+}
+
+</script>
 
 </body>
 </html>
