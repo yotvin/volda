@@ -2,11 +2,12 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<title>Volda AI V5</title>
+<title>Volda AI</title>
 
 <style>
 body {margin:0;font-family:Arial;background:#0f172a;color:white;}
-header {background:#1e293b;padding:15px;text-align:center;}
+
+header {background:#1e293b;padding:15px;}
 .logoContainer {display:flex;align-items:center;justify-content:center;gap:10px;}
 .logo {width:35px;height:35px;border-radius:8px;}
 
@@ -20,7 +21,7 @@ img {width:100%;border-radius:10px;margin-top:10px;}
 
 #inputZone {display:flex;padding:10px;background:#1e293b;}
 input {flex:1;padding:12px;border:none;border-radius:8px;}
-button {margin-left:10px;padding:12px;background:#22c55e;border:none;border-radius:8px;cursor:pointer;}
+button {margin-left:10px;padding:12px;background:#22c55e;border:none;border-radius:8px;}
 </style>
 </head>
 
@@ -42,10 +43,9 @@ button {margin-left:10px;padding:12px;background:#22c55e;border:none;border-radi
 
 <script>
 
-const chat = document.getElementById("chat");
+const chat=document.getElementById("chat");
 let memory=[];
 
-// ===== OUTILS =====
 function add(type,text=""){
 let d=document.createElement("div");
 d.className="message "+type;
@@ -64,77 +64,31 @@ function clean(t){
 return t.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"");
 }
 
-// ===== EXTRACTION SUJET (important pour image cohérente) =====
-function extractTopic(text){
-let words = clean(text).split(" ");
-let blacklist=["cherche","image","photo","montre","donne","de","du","la","le","les","un","une"];
-return words.filter(w=>!blacklist.includes(w)).slice(-2).join(" ");
+function extract(text){
+return clean(text).split(" ").slice(-2).join(" ");
 }
 
-// ===== METEO FAKE REALISTE =====
-function fakeWeather(){
-let temp = Math.floor(Math.random()*15+10);
-let conditions=["ensoleillé","nuageux","pluvieux","venteux"];
-return `${temp}°C et ${conditions[Math.floor(Math.random()*conditions.length)]}`;
-}
-
-// ===== IA =====
 function ai(input){
 
 let txt=clean(input);
 memory.push(input);
 
-// HEURE
 if(/heure/.test(txt)) return {t:"Il est "+new Date().toLocaleTimeString()};
-
-// DATE
 if(/date|jour/.test(txt)) return {t:"Nous sommes le "+new Date().toLocaleDateString()};
-
-// METEO
-if(/meteo|temps dehors/.test(txt)) return {t:"Actuellement : "+fakeWeather()};
-
-// DISCUSSION
-if(/bonjour|salut|coucou/.test(txt)) return {t:"Bonjour 😊 comment puis-je t'aider ?"};
-
-// AU REVOIR
+if(/meteo|temps/.test(txt)) return {t:"Météo : 18°C ensoleillé"};
+if(/bonjour|salut/.test(txt)) return {t:"Bonjour 😊 comment puis-je t'aider ?"};
 if(/au revoir|bye/.test(txt)) return {t:"Au revoir 👋 à bientôt !"};
+  if(/non|nan|nn/.test(txt)) return {t:"Pourquoi non ? quelque chose ne va pas ?"};
 
-// MEMOIRE
-if(/souviens/.test(txt)) return {t:"Je me souviens de : "+memory.slice(-3).join(", ")};
+let topic=extract(input);
 
-// DEMANDE IMAGE
-if(/image|photo/.test(txt)){
-let topic = extractTopic(input);
 return {
-t:"Voici une image correspondant à ta demande :",
-h:`<img src="https://source.unsplash.com/400x200/?${topic}">`
-};
-}
-
-// MODE RECHERCHE
-if(/cherche|recherche/.test(txt)){
-let topic = extractTopic(input);
-return {
-t:`Résultats pour "${topic}" :`,
-h:`
-➤ Définition simple<br>
-➤ Explication claire<br>
-➤ Informations utiles<br>
-<img src="https://source.unsplash.com/400x200/?${topic}">
-`
-};
-}
-
-// PAR DEFAUT
-let topic = extractTopic(input);
-return {
-t:"Voici ce que j'ai trouvé pour toi :",
-h:`<img src="https://source.unsplash.com/400x200/?${topic}">`
+t:"Voici ce que j'ai trouvé 🔎",
+h:`<img src="https://loremflickr.com/400/200/${topic}" onerror="this.src='https://loremflickr.com/400/200/nature'">`
 };
 
 }
 
-// ===== SEND =====
 function send(){
 let input=userInput.value;
 if(!input) return;
@@ -151,6 +105,7 @@ type(b,r.t);
 if(r.h){
 setTimeout(()=>{b.innerHTML+=r.h;},r.t.length*12);
 }
+
 },500);
 
 userInput.value="";
