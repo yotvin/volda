@@ -2,206 +2,164 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<title>Volda AI</title>
+<title>Volda AI V5</title>
 
 <style>
-body {
-    margin:0;
-    font-family: Arial;
-    background:#0f172a;
-    color:white;
-}
+body {margin:0;font-family:Arial;background:#0f172a;color:white;}
+header {background:#1e293b;padding:15px;text-align:center;}
+.logoContainer {display:flex;align-items:center;justify-content:center;gap:10px;}
+.logo {width:35px;height:35px;border-radius:8px;}
 
-/* HEADER */
-header {
-    background:#1e293b;
-    padding:15px;
-}
-
-.logoContainer {
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    gap:10px;
-}
-
-.logo {
-    width:35px;
-    height:35px;
-    border-radius:8px;
-}
-
-/* CHAT */
-#chat {
-    height:70vh;
-    overflow-y:auto;
-    padding:15px;
-}
-
-.message {
-    margin:10px 0;
-    padding:12px;
-    border-radius:12px;
-    max-width:80%;
-}
-
-.user {background:#3b82f6; margin-left:auto;}
+#chat {height:70vh;overflow-y:auto;padding:15px;}
+.message {margin:10px 0;padding:12px;border-radius:12px;max-width:80%;}
+.user {background:#3b82f6;margin-left:auto;}
 .bot {background:#334155;}
-.typing {opacity:0.6; font-style:italic;}
+.typing {opacity:0.6;font-style:italic;}
 
-img {
-    width:100%;
-    border-radius:10px;
-    margin-top:10px;
-}
+img {width:100%;border-radius:10px;margin-top:10px;}
 
-/* INPUT */
-#inputZone {
-    display:flex;
-    padding:10px;
-    background:#1e293b;
-}
-
-input {
-    flex:1;
-    padding:12px;
-    border:none;
-    border-radius:8px;
-}
-
-button {
-    margin-left:10px;
-    padding:12px;
-    background:#22c55e;
-    border:none;
-    border-radius:8px;
-    cursor:pointer;
-}
+#inputZone {display:flex;padding:10px;background:#1e293b;}
+input {flex:1;padding:12px;border:none;border-radius:8px;}
+button {margin-left:10px;padding:12px;background:#22c55e;border:none;border-radius:8px;cursor:pointer;}
 </style>
 </head>
 
 <body>
 
 <header>
-    <div class="logoContainer">
-        <img src="volda logo.png" class="logo">
-        <span>Volda AI</span>
-    </div>
+<div class="logoContainer">
+<img src="volda logo.png" class="logo">
+<span>Volda AI</span>
+</div>
 </header>
 
 <div id="chat"></div>
 
 <div id="inputZone">
-    <input id="userInput" placeholder="Écris ton message...">
-    <button onclick="send()">Envoyer</button>
+<input id="userInput" placeholder="Écris ton message...">
+<button onclick="send()">Envoyer</button>
 </div>
 
 <script>
 
 const chat = document.getElementById("chat");
-let memory = [];
+let memory=[];
 
-// MESSAGE
-function addMessage(type, text=""){
-    let div = document.createElement("div");
-    div.className = "message " + type;
-    div.innerHTML = text;
-    chat.appendChild(div);
-    chat.scrollTop = chat.scrollHeight;
-    return div;
+// ===== OUTILS =====
+function add(type,text=""){
+let d=document.createElement("div");
+d.className="message "+type;
+d.innerHTML=text;
+chat.appendChild(d);
+chat.scrollTop=chat.scrollHeight;
+return d;
 }
 
-// TYPEWRITER
-function typeText(el, text, speed=12){
-    let i=0;
-    el.innerHTML="";
-    function t(){
-        if(i<text.length){
-            el.innerHTML+=text[i++];
-            setTimeout(t,speed);
-        }
-    }
-    t();
+function type(el,text,s=12){
+let i=0;el.innerHTML="";
+(function t(){if(i<text.length){el.innerHTML+=text[i++];setTimeout(t,s);}})();
 }
 
-// CLEAN
 function clean(t){
-    return t.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"");
+return t.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"");
 }
 
-// IA
-function getAI(input){
-
-    let txt = clean(input);
-    memory.push(input);
-
-    // HEURE
-    if(/heure/.test(txt)){
-        return {text:"Il est actuellement "+new Date().toLocaleTimeString()};
-    }
-
-    // SALUT
-    if(/bonjour|salut|coucou/.test(txt)){
-        return {text:"Bonjour 😊 content de discuter avec toi."};
-    }
-
-    // AU REVOIR
-    if(/au revoir|bye/.test(txt)){
-        return {text:"Au revoir 👋 à bientôt !"};
-    }
-
-    // MEMOIRE
-    if(/souviens/.test(txt)){
-        return {text:"Je me souviens de : "+memory.slice(-3).join(", ")};
-    }
-
-    // RECHERCHE
-    return {
-        text:"Voici ce que j’ai trouvé pour toi 🔎",
-        html:`
-        <br><b>${input}</b><br>
-        ➤ Définition simple du sujet<br>
-        ➤ Explication rapide<br><br>
-        <img src="https://picsum.photos/400/200?random=${Math.floor(Math.random()*1000)}">
-        `
-    };
+// ===== EXTRACTION SUJET (important pour image cohérente) =====
+function extractTopic(text){
+let words = clean(text).split(" ");
+let blacklist=["cherche","image","photo","montre","donne","de","du","la","le","les","un","une"];
+return words.filter(w=>!blacklist.includes(w)).slice(-2).join(" ");
 }
 
-// ENVOI
+// ===== METEO FAKE REALISTE =====
+function fakeWeather(){
+let temp = Math.floor(Math.random()*15+10);
+let conditions=["ensoleillé","nuageux","pluvieux","venteux"];
+return `${temp}°C et ${conditions[Math.floor(Math.random()*conditions.length)]}`;
+}
+
+// ===== IA =====
+function ai(input){
+
+let txt=clean(input);
+memory.push(input);
+
+// HEURE
+if(/heure/.test(txt)) return {t:"Il est "+new Date().toLocaleTimeString()};
+
+// DATE
+if(/date|jour/.test(txt)) return {t:"Nous sommes le "+new Date().toLocaleDateString()};
+
+// METEO
+if(/meteo|temps dehors/.test(txt)) return {t:"Actuellement : "+fakeWeather()};
+
+// DISCUSSION
+if(/bonjour|salut|coucou/.test(txt)) return {t:"Bonjour 😊 comment puis-je t'aider ?"};
+
+// AU REVOIR
+if(/au revoir|bye/.test(txt)) return {t:"Au revoir 👋 à bientôt !"};
+
+// MEMOIRE
+if(/souviens/.test(txt)) return {t:"Je me souviens de : "+memory.slice(-3).join(", ")};
+
+// DEMANDE IMAGE
+if(/image|photo/.test(txt)){
+let topic = extractTopic(input);
+return {
+t:"Voici une image correspondant à ta demande :",
+h:`<img src="https://source.unsplash.com/400x200/?${topic}">`
+};
+}
+
+// MODE RECHERCHE
+if(/cherche|recherche/.test(txt)){
+let topic = extractTopic(input);
+return {
+t:`Résultats pour "${topic}" :`,
+h:`
+➤ Définition simple<br>
+➤ Explication claire<br>
+➤ Informations utiles<br>
+<img src="https://source.unsplash.com/400x200/?${topic}">
+`
+};
+}
+
+// PAR DEFAUT
+let topic = extractTopic(input);
+return {
+t:"Voici ce que j'ai trouvé pour toi :",
+h:`<img src="https://source.unsplash.com/400x200/?${topic}">`
+};
+
+}
+
+// ===== SEND =====
 function send(){
+let input=userInput.value;
+if(!input) return;
 
-    let input = document.getElementById("userInput").value;
-    if(!input) return;
+add("user",input);
+let b=add("bot typing","Volda réfléchit...");
 
-    addMessage("user", input);
+setTimeout(()=>{
+let r=ai(input);
+b.classList.remove("typing");
 
-    let bot = addMessage("bot typing", "Volda réfléchit...");
+type(b,r.t);
 
-    setTimeout(()=>{
-        let r = getAI(input);
-        bot.classList.remove("typing");
+if(r.h){
+setTimeout(()=>{b.innerHTML+=r.h;},r.t.length*12);
+}
+},500);
 
-        typeText(bot, r.text);
-
-        if(r.html){
-            setTimeout(()=>{
-                bot.innerHTML += r.html;
-            }, r.text.length*12);
-        }
-
-    },500);
-
-    document.getElementById("userInput").value="";
+userInput.value="";
 }
 
-// ENTRÉE POUR ENVOYER
-document.getElementById("userInput").addEventListener("keypress", function(e){
-    if(e.key==="Enter"){
-        send();
-    }
+userInput.addEventListener("keypress",e=>{
+if(e.key==="Enter") send();
 });
 
 </script>
-
 </body>
 </html>
